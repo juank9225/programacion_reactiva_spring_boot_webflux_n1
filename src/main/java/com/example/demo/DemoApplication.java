@@ -1,5 +1,6 @@
 package com.example.demo;
 
+import com.example.demo.modelos.Usuario;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -18,14 +19,19 @@ public class DemoApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		Flux<String> nombres = Flux.just("juan","jose","javier","maria","leo")
-				.doOnNext(e->{
-					if (e.isEmpty()){
+		Flux<Usuario> nombres = Flux.just("juan","jose","javier","maria","leo")
+				.map(nombre->new Usuario(nombre.toUpperCase(),null))
+				.doOnNext(usuario->{
+					if (usuario.equals(null)){
 						throw new RuntimeException("El nombre no puede ser vacio");
 					}
-					System.out.println(e);
+					System.out.println(usuario.getNombre());
+				}).map(usuario -> {
+					String nombre = usuario.getNombre().toLowerCase();
+					usuario.setNombre(nombre);
+					return usuario;
 				});
-		nombres.subscribe(e -> log.info(e)
+		nombres.subscribe(e -> log.info(e.toString())
 				, error -> log.error(error.getMessage())
 				, new Runnable() {
 					@Override
