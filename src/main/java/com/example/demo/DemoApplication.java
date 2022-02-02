@@ -23,8 +23,31 @@ public class DemoApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		ejemploFlatMap();
+		ejemploToString();
 	}
+
+	public void ejemploToString(String... args) throws Exception {
+		List<Usuario> usuariosList = new ArrayList<>();
+		usuariosList.add(new Usuario("juan","salcedo"));
+		usuariosList.add(new Usuario("jose","baldovino"));
+		usuariosList.add(new Usuario("javier","salgado"));
+		usuariosList.add(new Usuario("maria","vilches"));
+		usuariosList.add(new Usuario("leo","perez"));
+
+		Flux.fromIterable(usuariosList)
+				.map(usuario->usuario.getNombre().toUpperCase().concat(" ").concat(usuario.getApellido().toUpperCase()))
+				.flatMap(nombre ->{
+					if (nombre.contains("javier")){
+						return Mono.just(nombre);
+					}
+					return Mono.empty();
+				})
+				.map(nombre -> {
+					return nombre.toLowerCase();
+				})
+				.subscribe(u -> log.info(u.toString()));
+	}
+
 
 	public void ejemploFlatMap(String... args) throws Exception {
 		List<String> usuariosList = new ArrayList<>();
