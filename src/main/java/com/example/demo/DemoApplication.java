@@ -23,7 +23,22 @@ public class DemoApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		ejemploToString();
+		ejemploCollectList();
+	}
+
+	public void ejemploCollectList(String... args) throws Exception {
+		List<Usuario> usuariosList = new ArrayList<>();
+		usuariosList.add(new Usuario("juan","salcedo"));
+		usuariosList.add(new Usuario("jose","baldovino"));
+		usuariosList.add(new Usuario("javier","salgado"));
+		usuariosList.add(new Usuario("maria","vilches"));
+		usuariosList.add(new Usuario("leo","perez"));
+
+		Flux.fromIterable(usuariosList)
+				.collectList()
+				.subscribe(lista->{
+					lista.forEach(item->log.info(item.toString()));
+				});
 	}
 
 	public void ejemploToString(String... args) throws Exception {
