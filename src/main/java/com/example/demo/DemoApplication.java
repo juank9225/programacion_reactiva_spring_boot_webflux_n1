@@ -25,7 +25,42 @@ public class DemoApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		ejemploComentarioFlatMap();
+		ejemploComentarioZipWith2();
+	}
+
+	public void ejemploComentarioZipWith2(){
+		Mono<Usuario> usuarioMono = Mono.fromCallable(()->new Usuario("John","Doe"));
+		Mono<Comentarios> comentariosUsuarioMono = Mono.fromCallable(()->{
+			Comentarios comentarios = new Comentarios();
+			comentarios.addComentarios("Hola pepe, ue tal!!!...");
+			comentarios.addComentarios("Como estas amigo");
+			comentarios.addComentarios("Si te esta gustando el curso de undemy");
+			return comentarios;
+		});
+
+		Mono<UsuarioComentarios> usuarioComentarios = usuarioMono.
+			zipWith(comentariosUsuarioMono)
+					.map(tuple->{
+						Usuario u =  tuple.getT1();
+						Comentarios c = tuple.getT2();
+						return new UsuarioComentarios(u,c);
+					});
+		usuarioComentarios.subscribe(uc -> log.info(uc.toString()));
+	}
+
+
+	public void ejemploComentarioZipWith(){
+		Mono<Usuario> usuarioMono = Mono.fromCallable(()->new Usuario("John","Doe"));
+		Mono<Comentarios> comentariosUsuarioMono = Mono.fromCallable(()->{
+			Comentarios comentarios = new Comentarios();
+			comentarios.addComentarios("Hola pepe, ue tal!!!...");
+			comentarios.addComentarios("Como estas amigo");
+			comentarios.addComentarios("Si te esta gustando el curso de undemy");
+			return comentarios;
+		});
+
+		Mono<UsuarioComentarios> usuarioComentarios = usuarioMono.zipWith(comentariosUsuarioMono,(usuario,comentariosUsuario)->new UsuarioComentarios(usuario,comentariosUsuario));
+		usuarioComentarios.subscribe(uc -> log.info(uc.toString()));
 	}
 
 	public void ejemploComentarioFlatMap(){
