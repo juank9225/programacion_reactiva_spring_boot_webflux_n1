@@ -1,6 +1,8 @@
 package com.example.demo;
 
+import com.example.demo.modelos.Comentarios;
 import com.example.demo.modelos.Usuario;
+import com.example.demo.modelos.UsuarioComentarios;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -23,7 +25,21 @@ public class DemoApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		ejemploCollectList();
+		ejemploComentarioFlatMap();
+	}
+
+	public void ejemploComentarioFlatMap(){
+		Mono<Usuario> usuarioMono = Mono.fromCallable(()->new Usuario("John","Doe"));
+		Mono<Comentarios> comentariosUsuarioMono = Mono.fromCallable(()->{
+			Comentarios comentarios = new Comentarios();
+			comentarios.addComentarios("Hola pepe, ue tal!!!...");
+			comentarios.addComentarios("Como estas amigo");
+			comentarios.addComentarios("Si te esta gustando el curso de undemy");
+			return comentarios;
+		});
+
+		usuarioMono.flatMap(usuario -> comentariosUsuarioMono.map(comentarios -> new UsuarioComentarios(usuario,comentarios)))
+				.subscribe(usuarioComentarios -> log.info(usuarioComentarios.toString()));
 	}
 
 	public void ejemploCollectList(String... args) throws Exception {
