@@ -3,6 +3,8 @@ package com.example.demo;
 import com.example.demo.modelos.Comentarios;
 import com.example.demo.modelos.Usuario;
 import com.example.demo.modelos.UsuarioComentarios;
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -14,6 +16,7 @@ import reactor.core.publisher.Mono;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
 
 @SpringBootApplication
 public class DemoApplication implements CommandLineRunner {
@@ -26,7 +29,43 @@ public class DemoApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		ejemploDelayElements();
+		ejemploContraPresion();
+	}
+
+	public void ejemploContraPresion(){
+		Flux.range(1,10)
+				.log()
+				//.limitRate(5)// este metodo es util para manejar la contrapresion
+				.subscribe(new Subscriber<Integer>() {
+					private Subscription s;
+					private Integer limite = 5;
+					private Integer consumido = 0;
+					@Override
+					public void onSubscribe(Subscription s) {
+						this.s = s;
+						s.request(limite);
+					}
+
+					@Override
+					public void onNext(Integer t) {
+						log.info(t.toString());
+						consumido++;
+						if (consumido==limite){
+							consumido = 0;
+							s.request(limite);
+						}
+					}
+
+					@Override
+					public void onError(Throwable t) {
+
+					}
+
+					@Override
+					public void onComplete() {
+
+					}
+				});
 	}
 
 	public void ejemploDelayElements() throws InterruptedException {
